@@ -152,3 +152,36 @@ final class SMCReader {
         withUnsafeBytes(of: tuple) { Array($0) }
     }
 }
+
+enum SystemMetrics {
+    static func readCPUPerformanceLimitPercent() -> Int? {
+        guard let maxRatio = readSysctlInt("machdep.xcpm.bootpst"), maxRatio > 0 else {
+            return nil
+        }
+
+        let limitNames = [
+            "machdep.xcpm.hard_plimit_max_100mhz_ratio",
+            "machdep.xcpm.soft_plimit_max_100mhz_ratio"
+        ]
+
+        let ratios = limitNames.compactMap(readSysctlInt)
+        guard let limitedRatio = ratios.min() else {
+            return nil
+        }
+
+        let percent = (Double(limitedRatio) / Double(maxRatio)) * 100.0
+        return Int(percent.rounded())
+    }
+
+    private static func readSysctlInt(_ name: String) -> Int? {
+        var value: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+
+        let result = name.withCString { sysctlbyname($0, &value, &size, nil, 0) }
+        guard result == 0 else {
+            return nil
+        }
+
+        return Int(value)
+    }
+}

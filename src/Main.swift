@@ -62,16 +62,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
         image?.isTemplate = true // ensures proper menu bar rendering
 
-        let title: String
+        let temperatureTitle: String
         if let temperature = smcReader?.readCPUTemperatureFahrenheit() {
-            title = String(format: "%.0f°F", temperature)
+            temperatureTitle = String(format: "%.0f°F", temperature)
         } else {
-            title = "--°F"
+            temperatureTitle = "--°F"
+        }
+
+        let cpuLimitTitle: String
+        if let cpuLimitPercent = SystemMetrics.readCPUPerformanceLimitPercent() {
+            cpuLimitTitle = "\(cpuLimitPercent)%"
+        } else {
+            cpuLimitTitle = "--%"
         }
 
         statusItem.button?.image = image
         statusItem.button?.imagePosition = .imageLeading
-        statusItem.button?.title = title
+        statusItem.button?.title = "\(temperatureTitle) · \(cpuLimitTitle)"
     }
 
     private func configureMenu() {
