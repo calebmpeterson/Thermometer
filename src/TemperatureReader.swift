@@ -170,7 +170,8 @@ enum SystemMetrics {
         }
 
         let percent = (Double(limitedRatio) / Double(maxRatio)) * 100.0
-        return Int(percent.rounded())
+        let clampedPercent = min(max(percent, 0.0), 100.0)
+        return Int(clampedPercent.rounded())
     }
 
     private static func readSysctlInt(_ name: String) -> Int? {
