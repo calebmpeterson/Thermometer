@@ -8,7 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var startAtLoginMenuItem: NSMenuItem!
     private var observer: NSObjectProtocol?
     private var refreshTimer: Timer?
-    private let smcReader = SMCReader()
+    private let sensorReader = makePlatformSensorReader()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -63,14 +63,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         image?.isTemplate = true // ensures proper menu bar rendering
 
         let temperatureTitle: String
-        if let temperature = smcReader?.readCPUTemperatureFahrenheit() {
+        if let temperature = sensorReader.cpuTemperatureFahrenheit() {
             temperatureTitle = String(format: "%.0f°F", temperature)
         } else {
             temperatureTitle = "--°F"
         }
 
         let cpuLimitTitle: String
-        if let cpuLimitPercent = SystemMetrics.readCPUPerformanceLimitPercent() {
+        if let cpuLimitPercent = sensorReader.cpuPerformanceLimitPercent() {
             cpuLimitTitle = "\(cpuLimitPercent)%"
         } else {
             cpuLimitTitle = "--%"

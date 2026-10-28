@@ -153,8 +153,14 @@ final class SMCReader {
     }
 }
 
-enum SystemMetrics {
-    static func readCPUPerformanceLimitPercent() -> Int? {
+final class IntelSensorReader: SensorReader {
+    private let smcReader = SMCReader()
+
+    func cpuTemperatureFahrenheit() -> Double? {
+        smcReader?.readCPUTemperatureFahrenheit()
+    }
+
+    func cpuPerformanceLimitPercent() -> Int? {
         guard let maxRatio = readSysctlInt("machdep.xcpm.bootpst"), maxRatio > 0 else {
             return nil
         }
@@ -174,7 +180,7 @@ enum SystemMetrics {
         return Int(clampedPercent.rounded())
     }
 
-    private static func readSysctlInt(_ name: String) -> Int? {
+    private func readSysctlInt(_ name: String) -> Int? {
         var value: Int32 = 0
         var size = MemoryLayout<Int32>.size
 
